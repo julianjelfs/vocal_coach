@@ -10,8 +10,9 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			manifest: false,
 			workbox: {
-				globDirectory: 'build',
+				globDirectory: '.svelte-kit/output/client',
 				globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+				globIgnores: ['**/sw.js', '**/workbox-*.js'],
 				cleanupOutdatedCaches: true,
 				clientsClaim: true
 			},
