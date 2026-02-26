@@ -13,10 +13,10 @@
 	let analyser: AnalyserNode | null = null;
 	let stream: MediaStream | null = null;
 	let animFrame: number;
-	let micError: string | null = null;
+	let micError: string | null = $state(null);
 
 	// The draggable threshold in RMS units (0–1 scale, though typically 0–0.1)
-	let threshold = get(noiseGateThreshold);
+	let threshold = $state(get(noiseGateThreshold));
 
 	// Display scale: we show RMS on a 0–MAX_RMS linear scale
 	const MAX_RMS = 0.15;
@@ -26,7 +26,7 @@
 	const rmsHistory: number[] = new Array(HISTORY_LEN).fill(0);
 
 	// Drag state
-	let dragging = false;
+	let dragging = $state(false);
 	let canvasHeight = 0;
 
 	function rmsToY(rms: number, h: number): number {

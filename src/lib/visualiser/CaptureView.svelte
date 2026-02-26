@@ -7,19 +7,18 @@
 	import { tuningBackground, tuningAccent } from '$lib/visualiser/colours';
 	import CaptureControls from '$lib/components/CaptureControls.svelte';
 
-	// Bound to CaptureControls exported props
-	let timeLeft = 0;
-	let currentTargetMidi: number | null = null;
-	let controls: CaptureControls;
+	let timeLeft = $state(0);
+	let currentTargetMidi: number | null = $state(null);
+	let controls: { start: () => Promise<void>; stop: () => Promise<void> } | null = $state(null);
 
 	// 3-2-1 pre-session countdown
-	let countdown: number | null = 3;
+	let countdown: number | null = $state(3);
 	let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
 	// Reactive values from tracePoints
-	let degreeLabel: string | null = null;
-	let centsDeviation: number | null = null;
-	let absCents: number | null = null;
+	let degreeLabel: string | null = $state(null);
+	let centsDeviation: number | null = $state(null);
+	let absCents: number | null = $state(null);
 
 	const unsubTrace = tracePoints.subscribe((pts) => {
 		if (pts.length > 0) {
@@ -43,7 +42,12 @@
 				clearInterval(countdownInterval!);
 				countdownInterval = null;
 				countdown = null;
-				await controls.start();
+				// controls is populated by CaptureControls via $bindable ref prop
+				// but propagation may be deferred — wait a tick if needed
+				if (!controls) {
+					await new Promise<void>((resolve) => setTimeout(resolve, 0));
+				}
+				await controls?.start();
 			}
 		}, 1000);
 
@@ -67,7 +71,7 @@
 <div class="capture-view" style="background-color: {bgColour}">
 	<!-- Minimal top bar -->
 	<div class="top-bar">
-		<button class="stop-btn" onclick={() => controls.stop()} aria-label="Stop session">
+		<button class="stop-btn" onclick={() => controls?.stop()} aria-label="Stop session">
 			<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
 				<rect x="4" y="4" width="16" height="16" rx="2"/>
 			</svg>
@@ -104,7 +108,7 @@
 	{/if}
 
 	<!-- Invisible controller -->
-	<CaptureControls bind:this={controls} bind:timeLeft bind:currentTargetMidi />
+	<CaptureControls bind:ref={controls} bind:timeLeft bind:currentTargetMidi />
 
 	<!-- 3-2-1 pre-session overlay -->
 	{#if countdown !== null}

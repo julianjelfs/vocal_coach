@@ -6,8 +6,8 @@
 	import { appPhase, noiseGateThreshold, runDurationSecs, sessionMode, tempoBpm, type SessionMode } from '$lib/stores/uiStore';
 	import { get } from 'svelte/store';
 
-	let showNoiseGate = false;
-	let showRegisterInfo = false;
+	let showNoiseGate = $state(false);
+	let showRegisterInfo = $state(false);
 
 	const drone = new DroneEngine();
 	let droneCtx: AudioContext | null = null;

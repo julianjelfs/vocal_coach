@@ -6,9 +6,9 @@
 	import { SCALES } from '$lib/music/scales';
 	import type { CompletedSession } from '$lib/stores/sessionStore';
 
-	let sessions: CompletedSession[] = [];
-	let loading = true;
-	let error: string | null = null;
+	let sessions: CompletedSession[] = $state([]);
+	let loading = $state(true);
+	let error: string | null = $state(null);
 
 	onMount(async () => {
 		try {

@@ -9,15 +9,15 @@
 	import { renderReviewFrame, getReplayTargetMidi, midiToFreq } from '$lib/visualiser/reviewRenderer';
 	import { SCALES } from '$lib/music/scales';
 
-	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
+	let canvas: HTMLCanvasElement = $state(undefined as unknown as HTMLCanvasElement);
+	let ctx: CanvasRenderingContext2D = $state(undefined as unknown as CanvasRenderingContext2D);
 	let resizeObserver: ResizeObserver;
-	let logicalWidth = 0;
-	let logicalHeight = 0;
+	let logicalWidth = $state(0);
+	let logicalHeight = $state(0);
 
-	let playheadFraction = 0;
-	let isReplaying = false;
-	let pausedAtFraction = 0;
+	let playheadFraction = $state(0);
+	let isReplaying = $state(false);
+	let pausedAtFraction = $state(0);
 	let replayInterval: ReturnType<typeof setInterval> | null = null;
 	let droneCtx: AudioContext | null = null;
 	const drone = new DroneEngine();
@@ -28,12 +28,12 @@
 
 	// What audio to play during replay
 	type ReplayAudio = 'guide' | 'voice' | 'both';
-	let replayAudio: ReplayAudio = 'voice';
-	let guideVolume = 0.05; // 0–1
+	let replayAudio: ReplayAudio = $state('voice');
+	let guideVolume = $state(0.05); // 0–1
 
 	$effect(() => { drone.setVolume(guideVolume); });
 
-	let saveStatus: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
+	let saveStatus: 'idle' | 'saving' | 'saved' | 'error' = $state('idle');
 
 	let session = $derived($completedSession);
 	let scaleTones = $derived(get(musicContext).getScaleTones());

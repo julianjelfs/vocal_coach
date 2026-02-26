@@ -46,11 +46,17 @@
     const drone = new DroneEngine();
     const smoother = new VibratoSmoother();
 
+    interface ControlsRef {
+        start: () => Promise<void>;
+        stop: () => Promise<void>;
+    }
+
     interface Props {
         timeLeft?: number;
         currentTargetMidi?: number | null;
+        ref?: ControlsRef | null;
     }
-    let { timeLeft = $bindable(0), currentTargetMidi = $bindable(null) }: Props = $props();
+    let { timeLeft = $bindable(0), currentTargetMidi = $bindable(null), ref = $bindable(null) }: Props = $props();
 
     let lastTimestamp = 0;
     let timerInterval: ReturnType<typeof setInterval> | null = null;
@@ -152,7 +158,7 @@
         appPhase.set("reviewing");
     }
 
-    export async function start(): Promise<void> {
+    async function start(): Promise<void> {
         audioError.set(null);
         startAccumulator();
         clearTrace();
@@ -219,9 +225,11 @@
         }
     }
 
-    export async function stop(): Promise<void> {
+    async function stop(): Promise<void> {
         await endSession();
     }
+
+    ref = { start, stop };
 
     onDestroy(() => {
         if (timerInterval) clearInterval(timerInterval);
