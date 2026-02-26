@@ -31,44 +31,43 @@
 	let replayAudio: ReplayAudio = 'voice';
 	let guideVolume = 0.05; // 0–1
 
-	$: drone.setVolume(guideVolume);
+	$effect(() => { drone.setVolume(guideVolume); });
 
 	let saveStatus: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
 
-	$: session = $completedSession;
-	$: scaleTones = get(musicContext).getScaleTones();
+	let session = $derived($completedSession);
+	let scaleTones = $derived(get(musicContext).getScaleTones());
 
 	// Clamp the Y axis to the envelope of the target notes (scale/interval mode)
 	// or the actual sung range (free mode), so the canvas isn't cluttered with
 	// irrelevant octave range above/below.
-	$: {
+	let midiMin = $derived.by(() => {
 		if (session?.targetSequence && session.targetSequence.length > 0) {
-			midiMin = Math.min(...session.targetSequence) - 2;
-			midiMax = Math.max(...session.targetSequence) + 2;
-		} else {
-			// Free mode: derive range from smoothedMidi values, using IQR to
-			// ignore outlier noise detections at extreme frequencies.
-			const midis = (session?.tracePoints ?? []).map((p) => p.smoothedMidi).sort((a, b) => a - b);
-			if (midis.length > 0) {
-				const q1 = midis[Math.floor(midis.length * 0.05)];
-				const q3 = midis[Math.floor(midis.length * 0.95)];
-				midiMin = q1 - 3;
-				midiMax = q3 + 3;
-			} else {
-				midiMin = 40;
-				midiMax = 80;
-			}
+			return Math.min(...session.targetSequence) - 2;
 		}
-	}
-	let midiMin = 40;
-	let midiMax = 80;
+		const midis = (session?.tracePoints ?? []).map((p) => p.smoothedMidi).sort((a, b) => a - b);
+		if (midis.length > 0) {
+			return midis[Math.floor(midis.length * 0.05)] - 3;
+		}
+		return 40;
+	});
+	let midiMax = $derived.by(() => {
+		if (session?.targetSequence && session.targetSequence.length > 0) {
+			return Math.max(...session.targetSequence) + 2;
+		}
+		const midis = (session?.tracePoints ?? []).map((p) => p.smoothedMidi).sort((a, b) => a - b);
+		if (midis.length > 0) {
+			return midis[Math.floor(midis.length * 0.95)] + 3;
+		}
+		return 80;
+	});
 
-	$: sessionStart = session?.tracePoints[0]?.timestamp ?? 0;
-	$: sessionDuration = session?.durationMs ?? 1;
+	let sessionStart = $derived(session?.tracePoints[0]?.timestamp ?? 0);
+	let sessionDuration = $derived(session?.durationMs ?? 1);
 
-	$: scaleLabel = session
+	let scaleLabel = $derived(session
 		? `${session.key} ${SCALES[session.scale]?.name ?? session.scale}`
-		: '';
+		: '');
 
 	function resize() {
 		const dpr = window.devicePixelRatio || 1;
@@ -98,7 +97,7 @@
 	}
 
 	// Redraw when playhead moves
-	$: if (ctx && session) draw();
+	$effect(() => { if (ctx && session) draw(); });
 
 	async function startReplay(fromFraction = 0) {
 		if (!session) return;
@@ -251,7 +250,7 @@
 
 	<!-- Canvas -->
 	<div class="canvas-area">
-		<canvas bind:this={canvas} class="review-canvas" aria-label="Session timeline" on:click={handleCanvasClick}></canvas>
+		<canvas bind:this={canvas} class="review-canvas" aria-label="Session timeline" onclick={handleCanvasClick}></canvas>
 	</div>
 
 	<!-- Action bar -->
@@ -259,7 +258,7 @@
 		<button
 			class="replay-btn"
 			class:active={isReplaying}
-			on:click={isReplaying ? stopReplay : () => startReplay(pausedAtFraction)}
+			onclick={isReplaying ? stopReplay : () => startReplay(pausedAtFraction)}
 		>
 			{#if isReplaying}
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
@@ -277,7 +276,7 @@
 					<button
 						class="audio-btn"
 						class:active={replayAudio === val}
-						on:click={() => (replayAudio = val)}
+						onclick={() => (replayAudio = val)}
 						aria-pressed={replayAudio === val}
 						title={val === 'voice' ? 'Hear your voice' : val === 'guide' ? 'Hear guide tone' : 'Hear both'}
 					>{label}</button>
@@ -297,7 +296,7 @@
 
 		<button
 			class="save-btn"
-			on:click={saveSession}
+			onclick={saveSession}
 			disabled={saveStatus === 'saving' || saveStatus === 'saved'}
 		>
 			{#if saveStatus === 'saved'}✓ Saved
@@ -306,7 +305,7 @@
 			{:else}Save{/if}
 		</button>
 
-		<button class="back-btn" on:click={goBack}>← New Run</button>
+		<button class="back-btn" onclick={goBack}>← New Run</button>
 	</footer>
 </div>
 

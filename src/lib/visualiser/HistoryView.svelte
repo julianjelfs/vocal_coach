@@ -49,7 +49,7 @@
 
 <div class="history-view">
 	<header class="history-header">
-		<button class="back-btn" on:click={() => appPhase.set('idle')}>← Back</button>
+		<button class="back-btn" onclick={() => appPhase.set('idle')}>← Back</button>
 		<h2 class="history-title">Session History</h2>
 	</header>
 
@@ -62,9 +62,8 @@
 			<p class="state-msg">No sessions saved yet. Complete a run to see it here.</p>
 		{:else}
 			{#each sessions as session (session.id)}
-				<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-				<div class="session-card" on:click={() => openSession(session)} role="button" tabindex="0"
-					on:keydown={(e) => e.key === 'Enter' && openSession(session)}>
+				<div class="session-card" onclick={() => openSession(session)} role="button" tabindex="0"
+					onkeydown={(e) => e.key === 'Enter' && openSession(session)}>
 					<div class="session-main">
 						<div class="session-info">
 							<span class="session-key">{session.key} {SCALES[session.scale]?.name ?? session.scale}</span>
@@ -83,7 +82,7 @@
 					</div>
 					<button
 						class="delete-btn"
-						on:click={(e) => deleteSession(session.id, e)}
+						onclick={(e) => deleteSession(session.id, e)}
 						aria-label="Delete session"
 						title="Delete"
 					>

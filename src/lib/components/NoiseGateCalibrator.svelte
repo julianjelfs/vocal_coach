@@ -1,9 +1,12 @@
 <script lang="ts">
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { noiseGateThreshold } from '$lib/stores/uiStore';
 	import { get } from 'svelte/store';
 
-	const dispatch = createEventDispatcher<{ close: void }>();
+	interface Props {
+		onclose: () => void;
+	}
+	const { onclose }: Props = $props();
 
 	let canvas: HTMLCanvasElement;
 	let audioCtx: AudioContext | null = null;
@@ -176,11 +179,11 @@
 
 	function confirm() {
 		noiseGateThreshold.set(threshold);
-		dispatch('close');
+		onclose();
 	}
 
 	function cancel() {
-		dispatch('close');
+		onclose();
 	}
 
 	onMount(() => {
@@ -192,12 +195,11 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-<div class="overlay" on:click|self={cancel}>
+<div class="overlay" role="presentation" onclick={(e) => { if (e.target === e.currentTarget) cancel(); }}>
 	<div class="panel">
 		<header class="panel-header">
 			<h2 class="panel-title">Noise Gate</h2>
-			<button class="close-btn" on:click={cancel} aria-label="Close">✕</button>
+			<button class="close-btn" onclick={cancel} aria-label="Close">✕</button>
 		</header>
 
 		<p class="instructions">
@@ -212,18 +214,18 @@
 				class="analyser-canvas"
 				width="360"
 				height="160"
-				on:pointerdown={handlePointerDown}
-				on:pointermove={handlePointerMove}
-				on:pointerup={handlePointerUp}
-				on:pointercancel={handlePointerUp}
+				onpointerdown={handlePointerDown}
+				onpointermove={handlePointerMove}
+				onpointerup={handlePointerUp}
+				onpointercancel={handlePointerUp}
 				style="cursor: {dragging ? 'grabbing' : 'ns-resize'}"
 				aria-label="Noise level analyser"
 			></canvas>
 		{/if}
 
 		<footer class="panel-footer">
-			<button class="cancel-btn" on:click={cancel}>Cancel</button>
-			<button class="confirm-btn" on:click={confirm}>Set Gate</button>
+			<button class="cancel-btn" onclick={cancel}>Cancel</button>
+			<button class="confirm-btn" onclick={confirm}>Set Gate</button>
 		</footer>
 	</div>
 </div>

@@ -5,7 +5,7 @@
 <button
 	class="cents-toggle"
 	class:active={$showCents}
-	on:click={() => showCents.update((v) => !v)}
+	onclick={() => showCents.update((v) => !v)}
 	title={$showCents ? 'Hide cents' : 'Show cents deviation'}
 	aria-pressed={$showCents}
 >

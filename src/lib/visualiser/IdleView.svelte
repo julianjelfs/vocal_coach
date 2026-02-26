@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { appPhase, sessionMode, runDurationSecs, noiseGateThreshold, tempoBpm, type SessionMode } from '$lib/stores/uiStore';
-	import { selectedKey, selectedScale, selectedOctave } from '$lib/stores/musicStore';
-	import { KEY_NAMES, SCALES, type ScaleType } from '$lib/music/scales';
 	import { DroneEngine } from '$lib/audio/DroneEngine';
-	import { musicContext } from '$lib/stores/musicStore';
-	import { get } from 'svelte/store';
 	import NoiseGateCalibrator from '$lib/components/NoiseGateCalibrator.svelte';
+	import { KEY_NAMES, SCALES, type ScaleType } from '$lib/music/scales';
+	import { musicContext, selectedKey, selectedOctave, selectedScale } from '$lib/stores/musicStore';
+	import { appPhase, noiseGateThreshold, runDurationSecs, sessionMode, tempoBpm, type SessionMode } from '$lib/stores/uiStore';
+	import { get } from 'svelte/store';
 
 	let showNoiseGate = false;
 	let showRegisterInfo = false;
@@ -37,7 +36,7 @@
 		}
 		if (droneCtx.state === 'suspended') await droneCtx.resume();
 
-		drone.play(droneCtx, rootFreq, 0.3);
+		drone.play(droneCtx, rootFreq, 0.05);
 		setTimeout(() => drone.stop(droneCtx!), 1200);
 	}
 
@@ -58,7 +57,7 @@
 					<button
 						class="mode-btn"
 						class:active={$sessionMode === val}
-						on:click={() => setMode(val)}
+						onclick={() => setMode(val)}
 						aria-pressed={$sessionMode === val}
 					>
 						{label}
@@ -100,12 +99,11 @@
 					<button
 						class="info-btn"
 						aria-label="What is register?"
-						on:click|stopPropagation={() => (showRegisterInfo = !showRegisterInfo)}
+						onclick={(e) => { e.stopPropagation(); showRegisterInfo = !showRegisterInfo; }}
 					>ⓘ</button>
 				</div>
 				{#if showRegisterInfo}
-					<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-					<div class="info-popover" on:click={() => (showRegisterInfo = false)}>
+					<div class="info-popover" role="presentation" onclick={() => (showRegisterInfo = false)}>
 						Sets the octave the guide tone exercise is built around — choose the range that suits your voice.
 						Lower numbers (2–3) suit deeper voices; higher numbers (4–5) suit lighter or higher voices.
 						Has no effect in Free mode.
@@ -129,7 +127,7 @@
 						<button
 							class="dur-btn"
 							class:active={$runDurationSecs === secs}
-							on:click={() => runDurationSecs.set(secs)}
+							onclick={() => runDurationSecs.set(secs)}
 							aria-pressed={$runDurationSecs === secs}
 						>
 							{secs}s
@@ -160,7 +158,7 @@
 		{/if}
 
 		<!-- Noise gate calibration -->
-		<button class="noise-gate-btn" on:click={() => (showNoiseGate = true)}>
+		<button class="noise-gate-btn" onclick={() => (showNoiseGate = true)}>
 			<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
 				<path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
@@ -171,7 +169,7 @@
 		</button>
 
 		<!-- Reference tone -->
-		<button class="ref-btn" on:click={playRootReference} title="Play root note for reference">
+		<button class="ref-btn" onclick={playRootReference} title="Play root note for reference">
 			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
 				<circle cx="12" cy="12" r="9"/>
 				<line x1="12" y1="6" x2="12" y2="8"/>
@@ -182,25 +180,25 @@
 		</button>
 
 		<!-- Start -->
-		<button class="start-btn" on:click={startSession}>
+		<button class="start-btn" onclick={startSession}>
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
 				<path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
 				<line x1="12" y1="19" x2="12" y2="22"/>
 				<line x1="8" y1="22" x2="16" y2="22"/>
 			</svg>
-			Start Listening
+			Start Exercise
 		</button>
 
 		<!-- History link -->
-		<button class="history-link" on:click={() => appPhase.set('history')}>
+		<button class="history-link" onclick={() => appPhase.set('history')}>
 			View history
 		</button>
 	</div>
 </div>
 
 {#if showNoiseGate}
-	<NoiseGateCalibrator on:close={() => (showNoiseGate = false)} />
+	<NoiseGateCalibrator onclose={() => (showNoiseGate = false)} />
 {/if}
 
 <style>

@@ -59,15 +59,15 @@
 		return m > 0 ? `${m}:${s.toString().padStart(2, '0')}` : `${s}s`;
 	}
 
-	$: bgColour = tuningBackground(absCents);
-	$: accentColour = tuningAccent(absCents);
-	$: centsSign = centsDeviation !== null ? (centsDeviation >= 0 ? '+' : '') : '';
+	let bgColour = $derived(tuningBackground(absCents));
+	let accentColour = $derived(tuningAccent(absCents));
+	let centsSign = $derived(centsDeviation !== null ? (centsDeviation >= 0 ? '+' : '') : '');
 </script>
 
 <div class="capture-view" style="background-color: {bgColour}">
 	<!-- Minimal top bar -->
 	<div class="top-bar">
-		<button class="stop-btn" on:click={() => controls.stop()} aria-label="Stop session">
+		<button class="stop-btn" onclick={() => controls.stop()} aria-label="Stop session">
 			<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
 				<rect x="4" y="4" width="16" height="16" rx="2"/>
 			</svg>

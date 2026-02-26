@@ -4,6 +4,11 @@
 	import InstallPrompt from '$lib/components/InstallPrompt.svelte';
 	import { initSettings } from '$lib/stores/settingsStore';
 
+	interface Props {
+		children: import('svelte').Snippet;
+	}
+	const { children }: Props = $props();
+
 	onMount(async () => {
 		// Restore persisted settings before the first view renders
 		await initSettings();
@@ -19,5 +24,5 @@
 	});
 </script>
 
-<slot />
+{@render children()}
 <InstallPrompt />

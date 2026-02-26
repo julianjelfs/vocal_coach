@@ -27,7 +27,7 @@
 </script>
 
 {#if $canInstallPWA}
-	<button class="install-btn" on:click={install} aria-label="Add app to home screen">
+	<button class="install-btn" onclick={install} aria-label="Add app to home screen">
 		<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 			<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
 			<polyline points="7 10 12 15 17 10"/>
