@@ -7,7 +7,7 @@ const basePath = process.env.BASE_PATH ?? '';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
-		adapter: adapter({ fallback: 'index.html' }),
+		adapter: adapter(),
 		serviceWorker: { register: false },
 		paths: {
 			base: basePath
